@@ -109,7 +109,7 @@ class AccurateDocking(RComponent):
               (_, _, orientation) = euler_from_quaternion(quaternion)
             except Exception, e:
               rospy.logerr("%s::ready_state: exception: %s", rospy.get_name(), e)
-              self.stop()
+              self.stop = True
               return
 
             try:
