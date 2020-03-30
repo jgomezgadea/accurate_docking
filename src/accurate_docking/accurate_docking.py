@@ -10,6 +10,7 @@ from tf.transformations import euler_from_quaternion
 from robotnik_navigation_msgs.msg import MoveAction, MoveGoal
 from robotnik_navigation_msgs.msg import DockAction, DockGoal
 from std_srvs.srv import Trigger, Empty
+from std_msgs.msg import String
 import os
 import rospkg
 import datetime
@@ -90,6 +91,8 @@ class AccurateDocking(RComponent):
         self.stop_docking_server = rospy.Service('~stop', Trigger, self.stop_docking_service_cb)
         self.save_results_server = rospy.Service('~save_results', Empty, self.save_results_service_cb)
 
+        self.docking_status = rospy.Publisher('~status', String, queue_size=10)
+
 
         return 0
 
@@ -97,6 +100,8 @@ class AccurateDocking(RComponent):
         """Actions performed in ready state"""
         
         if self.current_iteration < self.consecutive_iterations:
+
+          self.docking_status.publish("running")
 
           if self.step != -1:
             try:
@@ -218,7 +223,10 @@ class AccurateDocking(RComponent):
             rospy.loginfo('%s::ready_state: final distance to reflectors -> x: %.3lf mm, y: %.3lf mm, %.3lf degrees', rospy.get_name(), position_to_reflectors[0]*1000, position_to_reflectors[1]*1000, math.degrees(orientation_to_reflectors))
             self.ongoing_result['final'] = [position[0], position[1], math.degrees(orientation)]
             self.results.append(self.ongoing_result)
-            self.step = 5
+            if self.step_back_distance == 0.0:
+              self.iteration_success()
+            else:
+              self.step = 5
 
           elif self.step == 5:
             # Move backward
@@ -236,6 +244,9 @@ class AccurateDocking(RComponent):
             else:
               rospy.logerr("%s::ready_state: Move-Forward failed", rospy.get_name())
               self.error_on_action()
+
+        else:
+          self.docking_status.publish("stopped")
 
    
     def error_on_action(self):
