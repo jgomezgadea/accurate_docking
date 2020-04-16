@@ -91,17 +91,27 @@ class AccurateDocking(RComponent):
         self.stop_docking_server = rospy.Service('~stop', Trigger, self.stop_docking_service_cb)
         self.save_results_server = rospy.Service('~save_results', Empty, self.save_results_service_cb)
 
-        self.docking_status = rospy.Publisher('~status', String, queue_size=10)
+        self.docking_status_pub = rospy.Publisher('~status', String, queue_size=10)
+        self.docking_status = "stopped"
 
 
-        return 0
+        RComponent.ros_setup(self)
+
+    def ros_publish(self):
+      '''
+        Publish topics at standard frequency
+      '''
+
+      self.docking_status_pub.publish(self.docking_status)
+
+      RComponent.ros_publish(self)
 
     def ready_state(self):
         """Actions performed in ready state"""
         
         if self.current_iteration < self.consecutive_iterations:
 
-          self.docking_status.publish("running")
+          self.docking_status = "running"
 
           if self.step != -1:
             try:
@@ -114,6 +124,7 @@ class AccurateDocking(RComponent):
               (_, _, orientation) = euler_from_quaternion(quaternion)
             except Exception, e:
               rospy.logerr("%s::ready_state: exception: %s", rospy.get_name(), e)
+              self.docking_status = "error"
               self.stop = True
               return
 
@@ -128,6 +139,7 @@ class AccurateDocking(RComponent):
 
             except Exception, e:
               rospy.logerr("%s::ready_state: exception: %s", rospy.get_name(), e)
+              self.docking_status = "error"
               error_on_action()
               return
 
@@ -158,7 +170,8 @@ class AccurateDocking(RComponent):
               rospy.sleep(2)
             else:
               rospy.logerr("%s::ready_state: Docking failed", rospy.get_name())
-              error_on_action()
+              self.docking_status = "error"
+              self.error_on_action()
 
           elif self.step == 1:
 
@@ -197,6 +210,7 @@ class AccurateDocking(RComponent):
                 else:
                   rospy.logerr("%s::ready_state: Move-Rotation failed", rospy.get_name())
                   error_on_action()
+                  self.docking_status = "error"
               else:
                 rospy.loginfo('%s::ready_state: %d - avoids rotating %.3lf degrees to %s', rospy.get_name(), self.step, math.degrees(orientation), self.goal_link)
                 self.step = 3
@@ -217,6 +231,7 @@ class AccurateDocking(RComponent):
             else:
               rospy.logerr("%s::ready_state: Move-Forward failed", rospy.get_name())
               error_on_action()
+              self.docking_status = "error"
 
           elif self.step == 4:
             rospy.loginfo('%s::ready_state: final distance to goal -> x: %.3lf mm, y: %.3lf mm, %.3lf degrees', rospy.get_name(), position[0]*1000, position[1]*1000, math.degrees(orientation))
@@ -244,9 +259,10 @@ class AccurateDocking(RComponent):
             else:
               rospy.logerr("%s::ready_state: Move-Forward failed", rospy.get_name())
               self.error_on_action()
+              self.docking_status = "error"
 
         else:
-          self.docking_status.publish("stopped")
+          self.docking_status = "stopped"
 
    
     def error_on_action(self):
