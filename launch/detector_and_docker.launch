@@ -17,6 +17,8 @@
   <arg name="source_topic" default="front_laser/scan" />
 	<arg name="target_topic" default="front_laser/cloud_reflector" />
 	<arg name="goal_distance_from_reflector" default="-0.85" />
+	<arg name="y_adjustment_from_reflector" default="0.0" /> 
+	<arg name="theta_adjustment_from_reflector" default="0.0" /> 
 
   <arg name="has_safety_controller" default="true"/>
   <arg name="cmd_vel_topic" default="move/cmd_vel"/>
@@ -60,7 +62,7 @@
 			<!-- if not set, does not apply a transform. transform is xyz-rpy, 6 parameters. remember that rotation is applied in reverse order (ypr) -->
 		</node>
 
-    <node name="tf_publisher_goal" pkg="tf" type="static_transform_publisher" args="$(arg goal_distance_from_reflector) 0.0 0 0 0 0 $(arg laser_filtered_dock_frame) $(arg laser_filtered_real_dock_frame) 50" />
+    <node name="tf_publisher_goal" pkg="tf" type="static_transform_publisher" args="$(arg goal_distance_from_reflector) $(arg y_adjustment_from_reflector) 0 0 0 $(arg theta_adjustment_from_reflector) $(arg laser_filtered_dock_frame) $(arg laser_filtered_real_dock_frame) 50" />
 
     <node name="pp_docker" pkg="robotnik_docker" type="purepursuit_docker_node" respawn="false" output="screen">
 	    <param name="robot_base_frame" type="string" value="$(arg robot_base_frame)" />
