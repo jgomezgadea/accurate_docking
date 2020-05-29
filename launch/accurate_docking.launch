@@ -8,8 +8,8 @@
   <arg name="pregoal_frame" default="$(arg id_robot)_accurate_test_goal"/>
   <arg name="goal_frame" default="$(arg id_robot)_accurate_test_goal"/>
   <arg name="reflectors_frame" default="$(arg id_robot)_filtered_point_between_reflectors"/>
-  <arg name="pregoal_offset_1" default="[-0.5, 0.005, 0.0]"/>
-  <arg name="pregoal_offset_2" default="[-0.1, 0.005, 0.0]"/>
+  <arg name="pregoal_offset_1" default="[-0.5, 0.0, 0.0]"/>
+  <arg name="pregoal_offset_2" default="[-0.1, 0.0, 0.0]"/>
   <arg name="step_back_distance" default="0"/>
   <arg name="consecutive_iterations" default="1"/>
   

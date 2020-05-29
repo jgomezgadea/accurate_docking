@@ -9,6 +9,7 @@ from tf import TransformListener
 from tf.transformations import euler_from_quaternion
 from robotnik_navigation_msgs.msg import MoveAction, MoveGoal
 from robotnik_navigation_msgs.msg import DockAction, DockGoal
+from robotnik_msgs.srv import SetTransform
 from std_srvs.srv import Trigger, Empty
 from std_msgs.msg import String
 import os
@@ -59,7 +60,7 @@ class AccurateDocking(RComponent):
           for i in range(len(self.pregoal_offset_1)):
             self.pregoal_offset_1[i] = float(self.pregoal_offset_1[i])
         # array of [x, y, theta] for the second dock call
-        param_offset_2 = rospy.get_param('~pregoal_offset_2', default = '[-0.0, 0, 0]')
+        param_offset_2 = rospy.get_param('~pregoal_offset_2', default = '[-0.1, 0, 0]')
         self.pregoal_offset_2 = (param_offset_2.replace('[','').replace(']','').replace(',','')).split(' ')
         
         if len(self.pregoal_offset_2)!= 3:
@@ -90,6 +91,9 @@ class AccurateDocking(RComponent):
         self.start_docking_server = rospy.Service('~start', Trigger, self.start_docking_service_cb)
         self.stop_docking_server = rospy.Service('~stop', Trigger, self.stop_docking_service_cb)
         self.save_results_server = rospy.Service('~save_results', Empty, self.save_results_service_cb)
+
+        self.set_pregoal_offset_1 = rospy.Service('~set_pregoal_offset_1', SetTransform, self.set_pregoal_offset_1_cb)
+        self.set_pregoal_offset_2 = rospy.Service('~set_pregoal_offset_2', SetTransform, self.set_pregoal_offset_2_cb)
 
         self.docking_status_pub = rospy.Publisher('~status', String, queue_size=10)
         self.docking_status = "stopped"
@@ -122,7 +126,7 @@ class AccurateDocking(RComponent):
               (position, quaternion) = self.tf.lookupTransform(
                   self.robot_link, self.goal_link, t)
               (_, _, orientation) = euler_from_quaternion(quaternion)
-            except Exception, e:
+            except Exception as e:
               rospy.logerr("%s::ready_state: exception: %s", rospy.get_name(), e)
               self.docking_status = "error"
               self.stop = True
@@ -137,10 +141,10 @@ class AccurateDocking(RComponent):
                   self.robot_link, self.reflectors_link, t)
               (_, _, orientation_to_reflectors) = euler_from_quaternion(quaternion_to_reflectors)
 
-            except Exception, e:
+            except Exception as e:
               rospy.logerr("%s::ready_state: exception: %s", rospy.get_name(), e)
               self.docking_status = "error"
-              error_on_action()
+              self.error_on_action()
               return
 
           if self.step == 0:
@@ -192,7 +196,7 @@ class AccurateDocking(RComponent):
               self.step = 2
             else:
               rospy.logerr("%s::ready_state: Docking failed", rospy.get_name())
-              error_on_action()
+              self.error_on_action()
 
           elif self.step == 2:
               # Orientate robot
@@ -209,7 +213,7 @@ class AccurateDocking(RComponent):
                   self.step = 3
                 else:
                   rospy.logerr("%s::ready_state: Move-Rotation failed", rospy.get_name())
-                  error_on_action()
+                  self.error_on_action()
                   self.docking_status = "error"
               else:
                 rospy.loginfo('%s::ready_state: %d - avoids rotating %.3lf degrees to %s', rospy.get_name(), self.step, math.degrees(orientation), self.goal_link)
@@ -230,7 +234,7 @@ class AccurateDocking(RComponent):
               self.step = 4
             else:
               rospy.logerr("%s::ready_state: Move-Forward failed", rospy.get_name())
-              error_on_action()
+              self.error_on_action()
               self.docking_status = "error"
 
           elif self.step == 4:
@@ -334,6 +338,25 @@ class AccurateDocking(RComponent):
         for result in self.results:
             f.write("%f,%f,%f,%f,%f,%f\n"%(result['initial'][0], result['initial'][1], result['initial'][2],result['final'][0], result['final'][1], result['final'][2] ))
 
-      print self.results
-
+      print(self.results)
       return []
+
+    def set_pregoal_offset_1_cb(self, req):
+      '''
+        modify pregoal_offset_1
+      '''
+      self.pregoal_offset_1[0] = req.translation.x
+      self.pregoal_offset_1[1] = req.translation.y
+      self.pregoal_offset_1[2] = req.translation.z
+
+      return True, "Changed pregoal_offset_1"
+
+    def set_pregoal_offset_2_cb(self, req):
+      '''
+        modify pregoal_offset_2
+      '''
+      self.pregoal_offset_2[0] = req.translation.x
+      self.pregoal_offset_2[1] = req.translation.y
+      self.pregoal_offset_2[2] = req.translation.z
+
+      return True, "Changed pregoal_offset_2"
