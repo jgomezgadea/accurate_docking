@@ -10,6 +10,7 @@ from tf.transformations import euler_from_quaternion
 from robotnik_navigation_msgs.msg import MoveAction, MoveGoal
 from robotnik_navigation_msgs.msg import DockAction, DockGoal
 from robotnik_msgs.srv import SetTransform
+from robotnik_msgs.msg import ReturnMessage
 from std_srvs.srv import Trigger, Empty
 from std_msgs.msg import String
 import os
@@ -345,18 +346,26 @@ class AccurateDocking(RComponent):
       '''
         modify pregoal_offset_1
       '''
-      self.pregoal_offset_1[0] = req.translation.x
-      self.pregoal_offset_1[1] = req.translation.y
-      self.pregoal_offset_1[2] = req.translation.z
+      self.pregoal_offset_1[0] = req.tf.translation.x
+      self.pregoal_offset_1[1] = req.tf.translation.y
+      self.pregoal_offset_1[2] = req.tf.translation.z
 
-      return True, "Changed pregoal_offset_1"
+      ret = ReturnMessage()
+      ret.success = True
+      ret.message = "Changed pregoal_offset_1"
+
+      return ret
 
     def set_pregoal_offset_2_cb(self, req):
       '''
         modify pregoal_offset_2
       '''
-      self.pregoal_offset_2[0] = req.translation.x
-      self.pregoal_offset_2[1] = req.translation.y
-      self.pregoal_offset_2[2] = req.translation.z
+      self.pregoal_offset_2[0] = req.tf.translation.x
+      self.pregoal_offset_2[1] = req.tf.translation.y
+      self.pregoal_offset_2[2] = req.tf.translation.z
 
-      return True, "Changed pregoal_offset_2"
+      ret = ReturnMessage()
+      ret.success = True
+      ret.message = "Changed pregoal_offset_2"
+
+      return ret
