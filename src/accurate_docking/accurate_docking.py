@@ -346,9 +346,9 @@ class AccurateDocking(RComponent):
       '''
         modify pregoal_offset_1
       '''
-      self.pregoal_offset_1[0] = req.tf.translation.x
-      self.pregoal_offset_1[1] = req.tf.translation.y
-      self.pregoal_offset_1[2] = req.tf.translation.z
+      self.pregoal_offset_1[0] = float(req.tf.translation.x)
+      self.pregoal_offset_1[1] = float(req.tf.translation.y)
+      #self.pregoal_offset_1[2] = req.tf.rotation
 
       ret = ReturnMessage()
       ret.success = True
@@ -360,9 +360,9 @@ class AccurateDocking(RComponent):
       '''
         modify pregoal_offset_2
       '''
-      self.pregoal_offset_2[0] = req.tf.translation.x
-      self.pregoal_offset_2[1] = req.tf.translation.y
-      self.pregoal_offset_2[2] = req.tf.translation.z
+      self.pregoal_offset_2[0] = float(req.tf.translation.x)
+      self.pregoal_offset_2[1] = float(req.tf.translation.y)
+      #self.pregoal_offset_2[2] = req.tf.rotation
 
       ret = ReturnMessage()
       ret.success = True
