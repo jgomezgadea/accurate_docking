@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="id_robot" default="rb1_base"/>
+  <arg name="id_robot" default="robot"/>
   <arg name="docker_action_server" default="pp_docker"/>
   <arg name="move_action_server" default="move"/>
   <arg name="base_frame" default="$(arg id_robot)_base_link"/>

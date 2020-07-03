@@ -2,9 +2,10 @@
 <launch>
 <!-- rb1_base_docking -->
 
-	<arg name="id_robot" default="rb1_base"/>
+	<arg name="id_robot" default="robot"/>
 	<arg name="prefix" value="$(arg id_robot)_"/>
 	<arg name="distance_between_reflectors" default="0.37" />
+	<arg name="filter_config_file" default="$(optenv ROBOT_LASER_MODEL_INTENSITY_FILTER default)_intensity_filter"/>
 
 	<arg name="fixed_frame" default="$(arg prefix)odom"/>
 	<arg name="robot_base_frame" default="$(arg prefix)base_footprint"/>
@@ -13,8 +14,8 @@
 	<arg name="laser_dock_middle_frame" default="$(arg prefix)point_between_reflectors"/>
 	<arg name="laser_filtered_dock_frame" default="$(arg prefix)filtered_point_between_reflectors"/>
 	<arg name="laser_filtered_real_dock_frame" default="$(arg prefix)accurate_test_goal"/>
-	<arg name="config_laser_reflectors_filter" default="$(find rb1_base_navigation)/config/docking/laser_filter_reflectors.yaml"/>
-  <arg name="source_topic" default="front_laser/scan" />
+	<arg name="config_laser_reflectors_filter" default="$(find rb1_base_perception)/config/laser/$(arg filter_config_file).yaml"/>
+	<arg name="source_topic" default="front_laser/scan" />
 	<arg name="target_topic" default="front_laser/cloud_reflector" />
 	<arg name="goal_distance_from_reflector" default="-0.85" />
 	<arg name="y_adjustment_from_reflector" default="0.0" /> 
