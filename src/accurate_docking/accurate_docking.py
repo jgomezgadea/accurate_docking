@@ -4,6 +4,7 @@ import re
 import rospy
 import actionlib
 import math
+import time
 
 from tf import TransformListener
 from tf.transformations import euler_from_quaternion
@@ -156,6 +157,7 @@ class AccurateDocking(RComponent):
             self.dock_action_client.wait_for_server()
 
             rospy.loginfo('%s::ready_state: Initial distance to goal-> x: %.3lf mm, y: %.3lf mm, %.3lf degrees', rospy.get_name(), position[0]*1000, position[1]*1000, math.degrees(orientation))
+            self.initial_time = time.time()
             self.ongoing_result['initial'] = [position[0], position[1], math.degrees(orientation)]
             # Docking
             dock_goal = DockGoal()
@@ -241,7 +243,9 @@ class AccurateDocking(RComponent):
           elif self.step == 4:
             rospy.loginfo('%s::ready_state: final distance to goal -> x: %.3lf mm, y: %.3lf mm, %.3lf degrees', rospy.get_name(), position[0]*1000, position[1]*1000, math.degrees(orientation))
             rospy.loginfo('%s::ready_state: final distance to reflectors -> x: %.3lf mm, y: %.3lf mm, %.3lf degrees', rospy.get_name(), position_to_reflectors[0]*1000, position_to_reflectors[1]*1000, math.degrees(orientation_to_reflectors))
+            self.final_time = time.time()
             self.ongoing_result['final'] = [position[0], position[1], math.degrees(orientation)]
+            self.ongoing_result['time'] = self.final_time - self.initial_time
             self.results.append(self.ongoing_result)
             if self.step_back_distance == 0.0:
               self.iteration_success()
@@ -337,7 +341,7 @@ class AccurateDocking(RComponent):
       file_path = folder+'/'+filename
       with open(file_path, 'w') as f:
         for result in self.results:
-            f.write("%f,%f,%f,%f,%f,%f\n"%(result['initial'][0], result['initial'][1], result['initial'][2],result['final'][0], result['final'][1], result['final'][2] ))
+            f.write("%f,%f,%f,%f,%f,%f,%f\n"%(result['initial'][0], result['initial'][1], result['initial'][2],result['final'][0], result['final'][1], result['final'][2], result['time'] ))
 
       print(self.results)
       return []
