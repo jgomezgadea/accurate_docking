@@ -340,6 +340,7 @@ class AccurateDocking(RComponent):
       folder = os.path.join(rp.get_path('accurate_docking'), 'data')
       file_path = folder+'/'+filename
       with open(file_path, 'w') as f:
+        f.write("#x0,y0,theta0,x1,y1,theta1,time\n")
         for result in self.results:
             f.write("%f,%f,%f,%f,%f,%f,%f\n"%(result['initial'][0], result['initial'][1], result['initial'][2],result['final'][0], result['final'][1], result['final'][2], result['time'] ))
 
