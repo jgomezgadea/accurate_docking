@@ -14,7 +14,6 @@
   <arg name="consecutive_iterations" default="5"/>
   
   <group ns="$(arg id_robot)">
-    <group ns="accurate_docking">
 
       <node name="accurate_docking" pkg="accurate_docking" type="accurate_docking_node.py" output="screen">
         <param name="docker_action_server" value="$(arg docker_action_server)"/>
@@ -29,7 +28,6 @@
         <param name="consecutive_iterations" value="$(arg consecutive_iterations)"/>
       </node>
 
-    </group>
   </group>
 
 

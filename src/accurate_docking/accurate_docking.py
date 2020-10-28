@@ -233,6 +233,7 @@ class AccurateDocking(RComponent):
             rospy.loginfo('%s::ready_state: %d - result = %s', rospy.get_name(), self.step, str(result.success))
 
             if result.success == True:
+              self.final_time = time.time()
               rospy.sleep(2)
               self.step = 4
             else:
@@ -243,7 +244,6 @@ class AccurateDocking(RComponent):
           elif self.step == 4:
             rospy.loginfo('%s::ready_state: final distance to goal -> x: %.3lf mm, y: %.3lf mm, %.3lf degrees', rospy.get_name(), position[0]*1000, position[1]*1000, math.degrees(orientation))
             rospy.loginfo('%s::ready_state: final distance to reflectors -> x: %.3lf mm, y: %.3lf mm, %.3lf degrees', rospy.get_name(), position_to_reflectors[0]*1000, position_to_reflectors[1]*1000, math.degrees(orientation_to_reflectors))
-            self.final_time = time.time()
             self.ongoing_result['final'] = [position[0], position[1], math.degrees(orientation)]
             self.ongoing_result['time'] = self.final_time - self.initial_time
             self.results.append(self.ongoing_result)
