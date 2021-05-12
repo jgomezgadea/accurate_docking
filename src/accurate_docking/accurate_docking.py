@@ -77,6 +77,8 @@ class AccurateDocking(RComponent):
         self.consecutive_iterations = rospy.get_param('~consecutive_iterations', default = 1)
         self.current_iteration = self.consecutive_iterations
 
+        self.skip_pregoal_2 = rospy.get_param('~skip_pregoal_2', default = False)
+
     def ros_setup(self):
         """Creates and inits ROS components"""
 
@@ -173,8 +175,11 @@ class AccurateDocking(RComponent):
             rospy.loginfo('%s::ready_state: %d - result = %s', rospy.get_name(), self.step, str(result.success))
 
             if result.success == True:
-              self.step = 1
-              rospy.sleep(2)
+              if (self.skip_pregoal_2 == False):
+                self.step = 1
+              else:
+                self.step = 2
+              rospy.sleep(1)
             else:
               rospy.logerr("%s::ready_state: Docking failed", rospy.get_name())
               self.docking_status = "error"
