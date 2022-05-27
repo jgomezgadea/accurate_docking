@@ -210,7 +210,7 @@ class AccurateDocking(RComponent):
               # Orientate robot
               move_goal = MoveGoal()
               move_goal.goal.theta = orientation
-              if abs(math.degrees(orientation)) > 0.2:
+              if abs(math.degrees(orientation)) > 0.2 and abs(math.degrees(orientation)) < 100:
                 rospy.loginfo('%s::ready_state: %d - rotating %.3lf degrees to %s', rospy.get_name(), self.step, math.degrees(orientation), self.goal_link)
                 self.move_action_client.send_goal(move_goal)
                 self.move_action_client.wait_for_result()
