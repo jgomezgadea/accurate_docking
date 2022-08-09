@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   std_srvs
   rcomponent
+  robotnik_msgs
 )
 
 ## System dependencies are found with CMake's conventions
